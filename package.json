@@ -1,0 +1,47 @@
+{
+  "name": "svmmon-mcp",
+  "version": "1.0.0",
+  "description": "Public MCP server for Svmmon — generate TikTok slideshows from Claude and other MCP clients. Thin wrapper over the Svmmon /api/v1 REST API.",
+  "license": "MIT",
+  "author": "Corey Wessel",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/coreywessel/svmmon-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/coreywessel/svmmon-mcp/issues"
+  },
+  "homepage": "https://github.com/coreywessel/svmmon-mcp#readme",
+  "type": "module",
+  "bin": {
+    "svmmon-mcp": "dist/server.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "svmmon",
+    "tiktok",
+    "slideshow",
+    "claude"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.5",
+    "typescript": "5.7.3"
+  }
+}
