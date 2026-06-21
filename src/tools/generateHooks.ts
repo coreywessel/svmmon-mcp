@@ -9,6 +9,10 @@
  *   - direction:  string, optional. Route hard-caps at 1500 chars (400 above),
  *     then truncates to 500 effective chars. We mirror the 1500 local guard.
  *   - count:      integer 1–10, default 5 (route: 400 if out of range/non-int)
+ *   - save:       boolean, default false. When true the route persists the
+ *     generated hooks to the profile's hook library; default false returns them
+ *     only so automations drawing from the library stay evergreen (mig 184).
+ *     (The route also persists when the profile's auto_save_generated_hooks is on.)
  *
  * Response: { hooks: [{ text, score }] } — MAY be fewer than `count` if the
  * ai_credit cap is hit mid-request (the route returns what it generated).
@@ -32,7 +36,9 @@ const tool: SvmmonTool = {
   description:
     'Generate scored TikTok hook candidates for one of the user\'s Svmmon profiles. ' +
     'Use when the user asks for hooks, openers, or angles for a profile (e.g. "give me 5 hooks for my Marcus profile about staying consistent"). ' +
-    'Returns hooks ranked by a 0-100 virality score and persists them to the profile\'s hook library. ' +
+    'Returns hooks ranked by a 0-100 virality score. ' +
+    'By default the hooks are returned only and are NOT saved to the profile\'s hook library, so automations that draw from the library stay evergreen. ' +
+    'Pass save:true to persist them into the library instead. ' +
     'COST: each batch of 3 candidates spends one AI credit (count=5 → 2 credits). ' +
     'May return FEWER hooks than requested if the AI-credit cap is hit mid-request — that is expected, not an error. ' +
     'Requires a valid profile_id: call list_profiles first and never invent one.',
@@ -58,6 +64,13 @@ const tool: SvmmonTool = {
         minimum: MIN_COUNT,
         maximum: MAX_COUNT,
         default: DEFAULT_COUNT,
+      },
+      save: {
+        type: 'boolean',
+        description:
+          'When true, persist the generated hooks to the profile\'s hook library. ' +
+          'Default false — hooks are returned only, not saved, so automations that draw from the library stay evergreen.',
+        default: false,
       },
     },
     required: ['profile_id'],
@@ -94,8 +107,21 @@ const tool: SvmmonTool = {
       count = n;
     }
 
-    // ---- Build the exact body the route reads (profile_id, direction?, count) ----
-    const body: Record<string, unknown> = { profile_id: profileId, count };
+    // Opt-in library persistence. Default false → the route generates + returns
+    // the hooks without inserting them, keeping the library evergreen (mig 184).
+    // The route also persists when the profile's auto_save_generated_hooks is on,
+    // independent of this flag — so a returned-only message is best-effort, not a
+    // guarantee the row wasn't written by that profile-level setting.
+    let save = false;
+    if (args.save !== undefined && args.save !== null) {
+      if (typeof args.save !== 'boolean') {
+        return errorResult('save must be a boolean (true to persist hooks to the library).');
+      }
+      save = args.save;
+    }
+
+    // ---- Build the exact body the route reads (profile_id, direction?, count, save) ----
+    const body: Record<string, unknown> = { profile_id: profileId, count, save };
     if (direction !== undefined) body.direction = direction;
 
     // ---- One request. NO retry on this cost-bearing POST. ----
@@ -110,11 +136,11 @@ const tool: SvmmonTool = {
       throw err; // server.ts catch-all maps anything unexpected
     }
 
-    return successResult(res, count);
+    return successResult(res, count, save);
   },
 };
 
-function successResult(res: HooksGenerateResponse, requested: number): ToolResult {
+function successResult(res: HooksGenerateResponse, requested: number, saved: boolean): ToolResult {
   const hooks = Array.isArray(res.hooks) ? res.hooks : [];
 
   if (hooks.length === 0) {
@@ -140,13 +166,20 @@ function successResult(res: HooksGenerateResponse, requested: number): ToolResul
       ? `\n\nNote: returned ${hooks.length} of ${requested} requested — the AI-credit cap was likely hit mid-request. Check get_usage.`
       : '';
 
+  // Reflect what actually happened: with save:true the hooks were persisted to
+  // the library; otherwise they were returned only (not saved), so automations
+  // drawing from the library stay evergreen.
+  const savedNote = saved
+    ? 'saved to the profile\'s hook library'
+    : 'returned only, not saved to the library — pass save:true to persist them';
+
   return {
     content: [
       {
         type: 'text',
         text:
           `Generated ${hooks.length} hook${hooks.length === 1 ? '' : 's'} ` +
-          `(ranked by virality score, also saved to the profile's hook library):\n\n` +
+          `(ranked by virality score, ${savedNote}):\n\n` +
           lines.join('\n') +
           partial,
       },
