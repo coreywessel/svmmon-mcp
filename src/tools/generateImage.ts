@@ -25,9 +25,9 @@ const tool: SvmmonTool = {
 
   description:
     'Generate an AI image via Svmmon Studio using the user\'s OWN stored provider key ' +
-    '(OpenAI gpt-image-1, Gemini Imagen, fal.ai FLUX, or Replicate FLUX). ' +
+    '(OpenAI, Gemini, Replicate, or an aggregator: fal.ai / Muapi.ai — one aggregator key unlocks many models). ' +
     'Compute is billed to the user\'s provider account (BYOK), not to their Svmmon plan. ' +
-    'Omit provider/model to auto-pick the first provider the user has a key for. ' +
+    'Omit provider/model to auto-pick the first model the user has a serving key for. ' +
     'The image is saved to a local file and the path is returned. ' +
     'If it fails with "no key on file", tell the user to add a Studio key at Settings → API Keys → Studio. ' +
     'COST: spends the user\'s own provider credits — do not retry on timeout.',
@@ -42,14 +42,14 @@ const tool: SvmmonTool = {
       },
       provider: {
         type: 'string',
-        enum: ['openai', 'gemini', 'fal', 'replicate'],
-        description: 'Optional. Which stored provider key to use. Omit to auto-pick.',
+        enum: ['openai', 'gemini', 'fal', 'replicate', 'muapi'],
+        description: 'Optional. Which stored key runs it when a model is served by more than one. Omit to auto-pick.',
       },
       model: {
         type: 'string',
         description:
-          'Optional provider model id (e.g. "gpt-image-1", "imagen-4.0-generate-001", ' +
-          '"fal-ai/flux/schnell", "black-forest-labs/flux-schnell"). Omit for the provider default.',
+          'Optional canonical model id (e.g. "gpt-image-1", "imagen-4.0-generate-001", ' +
+          '"flux-schnell", "flux-dev", "flux-1.1-pro", "sdxl", "ideogram-v2", "recraft-v3"). Omit for auto-pick.',
       },
       aspect_ratio: {
         type: 'string',

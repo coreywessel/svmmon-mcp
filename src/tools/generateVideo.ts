@@ -24,9 +24,9 @@ const tool: SvmmonTool = {
 
   description:
     'Generate an AI video clip via Svmmon Studio using the user\'s OWN stored provider key ' +
-    '(Gemini Veo 3, fal.ai Kling 2.1, or Replicate MiniMax Video-01). ' +
+    '(Gemini Veo, Replicate MiniMax, or an aggregator: fal.ai / Muapi.ai — one aggregator key unlocks Kling, Veo, MiniMax, Wan). ' +
     'Compute is billed to the user\'s provider account (BYOK), not to their Svmmon plan — video generation can cost $0.10–$1+ per clip. ' +
-    'Omit provider/model to auto-pick the first provider the user has a key for. ' +
+    'Omit provider/model to auto-pick the first model the user has a serving key for. ' +
     'Takes 1–4 minutes; the video is saved to a local file and the path is returned. ' +
     'If it fails with "no key on file", tell the user to add a Studio key at Settings → API Keys → Studio. ' +
     'COST: spends the user\'s own provider credits — NEVER retry on a timeout (the job may have completed provider-side).',
@@ -41,14 +41,14 @@ const tool: SvmmonTool = {
       },
       provider: {
         type: 'string',
-        enum: ['gemini', 'fal', 'replicate'],
-        description: 'Optional. Which stored provider key to use (OpenAI has no video models). Omit to auto-pick.',
+        enum: ['gemini', 'fal', 'replicate', 'muapi'],
+        description: 'Optional. Which stored key runs it when a model is served by more than one (OpenAI has no video). Omit to auto-pick.',
       },
       model: {
         type: 'string',
         description:
-          'Optional provider model id (e.g. "veo-3.0-generate-001", ' +
-          '"fal-ai/kling-video/v2.1/standard/text-to-video", "minimax/video-01"). Omit for the provider default.',
+          'Optional canonical model id (e.g. "veo-3.0-generate-001", "kling-2.1-t2v", ' +
+          '"kling-2.1-i2v", "minimax-video-01", "wan-2.1-t2v"). Omit for auto-pick.',
       },
       aspect_ratio: {
         type: 'string',

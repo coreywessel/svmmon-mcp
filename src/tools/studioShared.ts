@@ -14,7 +14,7 @@ import { mkdirSync, writeFileSync, existsSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-export const STUDIO_PROVIDERS = ['openai', 'gemini', 'fal', 'replicate'] as const;
+export const STUDIO_PROVIDERS = ['openai', 'gemini', 'fal', 'replicate', 'muapi'] as const;
 export const STUDIO_ASPECTS = ['1:1', '9:16', '16:9'] as const;
 export const MAX_PROMPT_CHARS = 2000; // route returns 400 above this
 
