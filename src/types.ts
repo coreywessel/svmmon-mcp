@@ -135,6 +135,20 @@ export interface SlideshowDelivery {
   reason?: string;
 }
 
+/** POST /api/v1/studio/generate */
+export interface StudioGenerateResponse {
+  provider: string;
+  model: string;
+  media: StudioMediaItem[];
+}
+
+export interface StudioMediaItem {
+  kind: 'image' | 'video';
+  mime: string;
+  /** Raw base64 of the generated media. */
+  data_b64: string;
+}
+
 /* ------------------------------------------------------------------ *
  * 2. Tool module contract
  * ------------------------------------------------------------------ *
@@ -160,7 +174,11 @@ export interface JsonSchema {
 
 /** The structured result a tool handler returns. content[] is the MCP tool-result payload. */
 export interface ToolResult {
-  content: Array<{ type: 'text'; text: string }>;
+  content: Array<
+    | { type: 'text'; text: string }
+    /** Inline media (base64) — used by generate_image so clients can render the result. */
+    | { type: 'image'; data: string; mimeType: string }
+  >;
   /** true => the client renders this as a tool error (clean human message, never the key). */
   isError?: boolean;
 }
