@@ -25,7 +25,7 @@ import {
 import { SvmmonClient, SvmmonApiError, SvmmonConfigError } from './client.js';
 import type { SvmmonTool, ToolResult } from './types.js';
 
-// The 7 tools. These paths are the fixed contract — do not rename.
+// The 9 tools. These paths are the fixed contract — do not rename.
 import getUsage from './tools/getUsage.js';
 import listProfiles from './tools/listProfiles.js';
 import listPresets from './tools/listPresets.js';
@@ -33,6 +33,8 @@ import generateHooks from './tools/generateHooks.js';
 import generateSlideshow from './tools/generateSlideshow.js';
 import listSlideshows from './tools/listSlideshows.js';
 import getSlideshow from './tools/getSlideshow.js';
+import generateImage from './tools/generateImage.js';
+import generateVideo from './tools/generateVideo.js';
 
 const TOOLS: SvmmonTool[] = [
   getUsage,
@@ -42,6 +44,8 @@ const TOOLS: SvmmonTool[] = [
   generateSlideshow,
   listSlideshows,
   getSlideshow,
+  generateImage,
+  generateVideo,
 ];
 
 const TOOLS_BY_NAME = new Map<string, SvmmonTool>(TOOLS.map((t) => [t.name, t]));
