@@ -2,7 +2,7 @@
  * Shared helpers for the Studio tools (generate_image / generate_video).
  *
  * Both tools call POST /api/v1/studio/generate — the same svm_-key-gated
- * route as every other tool (Growth+). Generation runs on the key owner's
+ * route as every other tool (any paid plan). Generation runs on the key owner's
  * STORED provider key (added in Svmmon → Settings → API Keys → Studio);
  * compute is billed to the user's own provider account, never to Svmmon.
  *

@@ -4,7 +4,7 @@ Generate TikTok slideshows from Claude (and any MCP client) using your [Svmmon](
 
 This is a thin, local **stdio MCP server** that wraps Svmmon's public `/api/v1` REST API. Install it, paste your key, and ask Claude to make slideshows in plain language. It adds no business logic — every tool maps 1:1 onto a real Svmmon endpoint.
 
-> **Requires a Growth plan or higher.** The API is gated to Growth+ accounts. Install always works; the tools return a clean "needs Growth+" message until you paste a valid paid key.
+> **Requires an active subscription.** The API works on any active paid plan (per-tier volume caps still apply). Install always works; the tools return a clean "requires an active subscription" message until you paste a valid paid key.
 
 ---
 
@@ -12,7 +12,7 @@ This is a thin, local **stdio MCP server** that wraps Svmmon's public `/api/v1` 
 
 ### 1. Get your key
 
-app.svmmonapp.com → **Settings → API Keys → Svmmon API → Generate key** (Growth plan or higher). It looks like `svm_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`.
+app.svmmonapp.com → **Settings → API Keys → Svmmon API → Generate key** (any paid plan). It looks like `svm_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`.
 
 > Treat this key like a password. If it's ever exposed, revoke it instantly in **Settings → API Keys** — the MCP can't revoke it for you.
 
@@ -70,7 +70,7 @@ claude mcp add svmmon -e SVMMON_API_KEY=svm_your_key_here -- npx -y svmmon-mcp
 ## Troubleshooting
 
 - **"key is missing, invalid, or revoked" (401)** — Set `SVMMON_API_KEY` to a current key from Settings → API Keys.
-- **"needs a Growth plan or higher" (403)** — Upgrade at app.svmmonapp.com/subscribe.
+- **"requires an active subscription" (403)** — Subscribe at app.svmmonapp.com/subscribe. Any active paid plan works.
 - **"a usage cap was reached" (402)** — You hit your monthly slideshow or AI-credit cap. Run `get_usage`.
 - **"Rate limited" (429)** — Wait the suggested time if one is shown; otherwise it's a daily AI limit that resets at midnight UTC. The message tells you which.
 

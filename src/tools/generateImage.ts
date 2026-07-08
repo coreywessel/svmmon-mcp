@@ -4,7 +4,7 @@
  * BYOK: generation runs on the key owner's STORED provider key (OpenAI /
  * Gemini / fal.ai / Replicate — added in Svmmon → Settings → API Keys →
  * Studio) and is billed to THEIR provider account, never to Svmmon. Gated
- * exactly like every other tool: svm_ key, Growth+.
+ * exactly like every other tool: svm_ key, any paid plan.
  *
  * When provider/model are omitted the server auto-picks the first stored key
  * that can do images. A 412 "no_key" means the user has no usable Studio key.

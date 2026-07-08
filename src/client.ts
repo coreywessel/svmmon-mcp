@@ -87,7 +87,7 @@ export class SvmmonClient {
     if (!key) {
       throw new SvmmonConfigError(
         'No Svmmon API key found. Set SVMMON_API_KEY to a key from ' +
-          'app.svmmonapp.com → Settings → API Keys (Growth plan or higher).',
+          'app.svmmonapp.com → Settings → API Keys (any paid plan).',
       );
     }
     const baseUrl = normalizeBaseUrl(process.env.SVMMON_BASE_URL);
@@ -234,9 +234,10 @@ function mapHttpError(
           { details },
         );
       }
-      // Tier gate (upgrade_to: "growth").
+      // Tier gate. Echo the API's own reason so tier wording never drifts on the
+      // MCP side; fall back to a generic line only when the body has no error text.
       return new SvmmonApiError(
-        'The Svmmon API needs a Growth plan or higher. Upgrade at app.svmmonapp.com/subscribe.',
+        apiMsg || 'This action requires an active Svmmon subscription. Subscribe at app.svmmonapp.com/subscribe.',
         403,
         { details },
       );

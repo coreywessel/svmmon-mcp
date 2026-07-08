@@ -4,7 +4,7 @@
  * BYOK: runs on the key owner's STORED provider key (Gemini Veo, fal.ai
  * Kling, or Replicate MiniMax — added in Svmmon → Settings → API Keys →
  * Studio), billed to THEIR provider account. Gated exactly like every other
- * tool: svm_ key, Growth+.
+ * tool: svm_ key, any paid plan.
  *
  * Video jobs are long-running (the route polls the provider, up to ~4 min).
  * The result is written to a local file and the path returned — video is far

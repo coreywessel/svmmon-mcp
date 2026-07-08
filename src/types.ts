@@ -17,7 +17,7 @@ import type { SvmmonClient } from './client.js';
 
 /** GET /api/v1/usage */
 export interface UsageResponse {
-  /** Effective tier of the key owner ("growth" | "scale" | "unlimited" | "admin"). */
+  /** Effective tier of the key owner ("starter" | "growth" | "scale" | "unlimited" | "admin"). */
   tier: string;
   slideshows: { used: number; cap: number };
   /** ISO timestamp when the monthly counter resets; null for admin keys. */
