@@ -46,6 +46,19 @@ import getCollection from './tools/getCollection.js';
 import listStudioProviders from './tools/listStudioProviders.js';
 import listStudioHistory from './tools/listStudioHistory.js';
 import listStudioSaves from './tools/listStudioSaves.js';
+import listConnections from './tools/listConnections.js';
+import listAutomations from './tools/listAutomations.js';
+import getAutomation from './tools/getAutomation.js';
+import getSchedule from './tools/getSchedule.js';
+import getProfile from './tools/getProfile.js';
+import getProfileHooks from './tools/getProfileHooks.js';
+import getTrending from './tools/getTrending.js';
+import uploadImages from './tools/uploadImages.js';
+import addHooks from './tools/addHooks.js';
+import removeHook from './tools/removeHook.js';
+import updateProfile from './tools/updateProfile.js';
+import deliverSlideshow from './tools/deliverSlideshow.js';
+import runAutomation from './tools/runAutomation.js';
 
 const TOOLS: SvmmonTool[] = [
   getUsage,
@@ -66,6 +79,20 @@ const TOOLS: SvmmonTool[] = [
   listStudioProviders,
   listStudioHistory,
   listStudioSaves,
+  listConnections,
+  listAutomations,
+  getAutomation,
+  getSchedule,
+  getProfile,
+  getProfileHooks,
+  getTrending,
+  // WRITE tools (v1.4.0) — every one is two-step confirm-gated.
+  uploadImages,
+  addHooks,
+  removeHook,
+  updateProfile,
+  deliverSlideshow,
+  runAutomation,
 ];
 
 const TOOLS_BY_NAME = new Map<string, SvmmonTool>(TOOLS.map((t) => [t.name, t]));
@@ -84,7 +111,7 @@ function packageVersion(): string {
   } catch {
     // fall through to the baked-in fallback
   }
-  return '1.2.0';
+  return '1.4.0';
 }
 
 const server = new Server(

@@ -50,8 +50,8 @@ export class SvmmonConfigError extends Error {
 
 export interface RequestOptions {
   /** HTTP method. Defaults to 'GET'. */
-  method?: 'GET' | 'POST';
-  /** JSON body for POST requests. Serialized with JSON.stringify. */
+  method?: 'GET' | 'POST' | 'PATCH' | 'DELETE';
+  /** JSON body for POST/PATCH requests. Serialized with JSON.stringify. */
   body?: unknown;
   /** Query params appended to the path (string values only). */
   query?: Record<string, string | number | undefined>;

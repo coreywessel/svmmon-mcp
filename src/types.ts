@@ -403,6 +403,195 @@ export interface StudioMediaItem {
   data_b64: string;
 }
 
+/** GET /api/v1/connections */
+export interface ConnectionsResponse {
+  connections: ConnectionSummary[];
+  count: number;
+}
+
+export interface ConnectionSummary {
+  id: string;
+  username: string | null;
+  display_name: string;
+  profile_id: string | null;
+  connected: boolean;
+  needs_reconnect: boolean;
+  connection_error: string | null;
+  refresh_expires_at: string | null;
+  created_at: string | null;
+}
+
+/** GET /api/v1/automations (list) and GET /api/v1/automations/[id] (single, same shape) */
+export interface AutomationsResponse {
+  automations: AutomationSummary[];
+  count: number;
+}
+
+export interface AutomationSummary {
+  id: string;
+  name: string;
+  active: boolean;
+  profile_id: string | null;
+  timezone: string | null;
+  delivery_mode: string | null;
+  hook_source: string;
+  preset_rotation_ids: string[];
+  proven_ratio: number;
+  slide_preset_id: string | null;
+  slide_count_mode: string | null;
+  slide_count_fixed: number | null;
+  slide_count_min: number | null;
+  slide_count_max: number | null;
+  hook_count: number;
+  last_run_status: string | null;
+  last_run_at: string | null;
+  soft_cta: string | null;
+  force_cta_slide: boolean;
+  cta_image_collection_id: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
+
+/** GET /api/v1/schedule */
+export interface ScheduleResponse {
+  slots: ScheduleSlot[];
+  count: number;
+}
+
+export interface ScheduleSlot {
+  id: string;
+  automation_id: string | null;
+  automation_name: string | null;
+  time_of_day: string;
+  days_of_week: number[];
+  timezone: string | null;
+  active: boolean;
+  last_fired_at: string | null;
+  created_at: string | null;
+}
+
+/** GET /api/v1/profiles/[id] (deep single-profile read) */
+export interface ProfileDetail {
+  id: string;
+  name: string | null;
+  kind: string | null;
+  niche: string | null;
+  persona_bio: string | null;
+  audience: string | null;
+  tone_prompt: string | null;
+  soft_cta: string | null;
+  cta_description: string | null;
+  cta_mode: string | null;
+  cta_framing: string | null;
+  primary_hashtags: string[];
+  secondary_hashtags: string[];
+  slide_count_mode: string | null;
+  slide_count_fixed: number | null;
+  slide_count_min: number | null;
+  slide_count_max: number | null;
+  words_per_slide: number | null;
+  learning_active: boolean;
+  auto_learning_enabled: boolean;
+  ready: boolean;
+  missing: string[];
+  linked_tiktok_accounts: Array<{ id: string; display_name: string | null }>;
+  automations: Array<{ id: string; name: string; active: boolean }>;
+  archived_at: string | null;
+  created_at: string | null;
+}
+
+/** GET /api/v1/profiles/[id]/hooks */
+export interface ProfileHooksResponse {
+  hooks: ProfileHook[];
+  count: number;
+}
+
+export interface ProfileHook {
+  id: string;
+  text: string;
+  status: 'pending' | 'active';
+  source: string;
+  used_count: number;
+  bucket: string | null;
+  virality_score: number | null;
+  created_at: string | null;
+}
+
+/** GET /api/v1/trending */
+export interface TrendingResponse {
+  trending: TrendingItem[];
+  count: number;
+}
+
+export interface TrendingItem {
+  id: string;
+  hashtag: string;
+  description: string | null;
+  author_name: string | null;
+  author_nickname: string | null;
+  play_count: number;
+  like_count: number;
+  comment_count: number;
+  share_count: number;
+  thumbnail_url: string | null;
+  tiktok_url: string | null;
+  is_slideshow: boolean;
+  source: string;
+  tiktok_created_at: string | null;
+  fetched_at: string;
+  created_at: string;
+}
+
+/* ------------------------------------------------------------------ *
+ * 1b. WRITE endpoint response types (v1.4.0 write tools)
+ * ------------------------------------------------------------------ */
+
+/** POST /api/v1/collections/[id]/images */
+export interface UploadImagesResponse {
+  uploaded: Array<{ id: string; filename: string; bytes: number }>;
+  count: number;
+  /** Present on a 207 partial success — per-file ok/error breakdown. */
+  results?: Array<{ filename: string; ok: boolean; id?: string; bytes?: number; error?: string }>;
+}
+
+/** POST /api/v1/profiles/[id]/hooks */
+export interface AddHooksResponse {
+  created: Array<{
+    id: string;
+    text: string;
+    status: string;
+    source: string;
+    used_count: number;
+    created_at: string | null;
+  }>;
+  count: number;
+}
+
+/** DELETE /api/v1/profiles/[id]/hooks?hookId= */
+export interface RemoveHookResponse {
+  deleted: boolean;
+  id: string;
+}
+
+/** POST /api/v1/slideshows/[id]/deliver */
+export interface DeliverSlideshowResponse {
+  slideshow_id: string;
+  target: 'tiktok' | 'telegram';
+  delivered: boolean;
+  /** Present on a successful TikTok deliver. */
+  account?: { id: string; username: string | null };
+  /** true when TikTok accepted the init but hasn't confirmed terminal yet. */
+  pending_confirmation?: boolean;
+}
+
+/** POST /api/v1/automations/[id]/run */
+export interface RunAutomationResponse {
+  automation_id: string;
+  slideshow_id?: string;
+  status: string;
+  delivered?: boolean;
+}
+
 /* ------------------------------------------------------------------ *
  * 2. Tool module contract
  * ------------------------------------------------------------------ *

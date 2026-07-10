@@ -66,6 +66,26 @@ claude mcp add svmmon -e SVMMON_API_KEY=svm_your_key_here -- npx -y svmmon-mcp
 | `list_studio_providers` | Studio model catalog + which of your provider keys unlock what. |
 | `list_studio_history` | Recent studio generations (metadata; provider source URLs may be expired). |
 | `list_studio_saves` | Your saved studio generations. |
+| `list_connections` | Your connected TikTok accounts + live connection health (needs_reconnect, connection_error). |
+| `list_automations` | Your automations — active state, schedule, delivery mode, hook source, hook count, last run status. |
+| `get_automation` | One automation's full detail by id. |
+| `get_schedule` | Your posting schedule — every slot's time, days, timezone, and which automation fires it. |
+| `get_profile` | One profile's full detail — bio, audience, tone, CTA, hashtags, readiness, linked accounts/automations. |
+| `get_profile_hooks` | A profile's hook library — text, status, source, used_count, virality_score. |
+| `get_trending` | Globally trending TikTok posts (not account-specific) — optional hashtag/days filter. |
+
+### Write tools
+
+Every write tool is **two-step confirm-gated**: the first call returns a preview of the exact consequence and cost and does nothing; you must call again with `confirm: true` to execute. Surface the preview to the user before confirming.
+
+| Tool | What it does |
+|---|---|
+| `upload_images` | Upload base64 images (max 20) into an owned collection. Counts against your image-storage cap. |
+| `add_hooks` | Add manual hooks (max 50) to a profile's hook library. |
+| `remove_hook` | Permanently delete one hook from a profile's library (**irreversible**). |
+| `update_profile` | Edit a profile's safe voice/CTA/hashtag/product fields. Preview shows a current → new diff. |
+| `deliver_slideshow` | Re-post an already-generated slideshow to TikTok/Telegram — **no** AI call and **no** monthly quota spent. Uses a TikTok inbox slot. |
+| `run_automation` | Run an automation now — **spends 1 slideshow + AI credits** and posts LIVE. Cannot be undone. |
 
 ---
 

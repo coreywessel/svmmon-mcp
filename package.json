@@ -1,6 +1,6 @@
 {
   "name": "svmmon-mcp",
-  "version": "1.2.0",
+  "version": "1.4.0",
   "description": "Public MCP server for Svmmon — generate TikTok slideshows from Claude and other MCP clients. Thin wrapper over the Svmmon /api/v1 REST API.",
   "license": "MIT",
   "author": "Corey Wessel",
