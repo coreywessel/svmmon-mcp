@@ -23,6 +23,22 @@ export interface UsageResponse {
   /** ISO timestamp when the monthly counter resets; null for admin keys. */
   period_end: string | null;
   tiktok_accounts: TikTokAccountUsage[];
+  /** AI credits this period (hook gen + quality check cost 1 each). */
+  ai_credits: { used: number; cap: number };
+  /** Free re-roll pool this period. */
+  rerolls: { used: number; cap: number; remaining: number };
+  /** blocked = feature not available on this tier. */
+  shorts: { cap: number; blocked: boolean };
+  face_swaps: { cap: number; blocked: boolean };
+  /** plan_period: "monthly" | "annual" | null. */
+  plan: { tier: string; plan_period: string | null };
+  /** Membership-count gates (connect/create/upload-time limits). null = unlimited. */
+  caps: {
+    tiktok_accounts: number | null;
+    automations: number | null;
+    image_collections: number | null;
+    image_storage_bytes: number | null;
+  };
 }
 
 export interface TikTokAccountUsage {
@@ -133,6 +149,244 @@ export interface SlideshowDelivery {
    * pending_tiktok_confirmation.
    */
   reason?: string;
+}
+
+/** GET /api/v1/brain */
+export interface BrainResponse {
+  profiles: BrainProfile[];
+}
+
+export interface BrainProfile {
+  profile_id: string;
+  profile_name: string;
+  /** Performance-weighting activation gate (~30 attributed posts). */
+  learning_active: boolean;
+  /** null until the first weekly analysis run. */
+  brain: {
+    summary_md: string;
+    patterns: unknown[];
+    dimensions: unknown[];
+    formula: Record<string, unknown>;
+    voice_dna: Record<string, unknown>;
+    directions: Array<{ label?: string; trend?: string }>;
+    next_hooks: string[];
+    analyzed_post_count: number;
+    last_analyzed_at: string | null;
+  } | null;
+  /** Learning-over-time timeline. */
+  snapshots: Array<{ captured_at: string | null; analyzed_post_count: number; milestone: string | null }>;
+  /** Only present with ?include=charts. */
+  charts?: BrainCharts;
+}
+
+export interface BrainCharts {
+  total_posts: number;
+  slide_distribution: Array<{ slides: number; avg_views: number; posts: number }>;
+  sweet_spot: { slides: number; avg_views: number; posts: number };
+  top_hooks: Array<{ hook: string; views: number }>;
+  growth_hooks: Array<{ hook: string; views: number }>;
+  growth_hooks_worst: Array<{ hook: string; views: number }>;
+  growth_daily: Array<{ date: string; cumulative: number }>;
+}
+
+/** GET /api/v1/master-brain */
+export interface MasterBrainResponse {
+  /** true once past the privacy floor AND generated. */
+  ready: boolean;
+  /** true while below the MIN_CONTRIBUTORS privacy floor. */
+  warming_up: boolean;
+  contributor_count: number;
+  min_contributors: number;
+  analyzed_profile_count: number;
+  /** Empty while warming up. */
+  summary_md: string;
+  whats_working: Array<{ pattern?: string; note?: string }>;
+  whats_not: Array<{ pattern?: string; note?: string }>;
+  directions: Array<{ label?: string; trend?: string }>;
+  top_dimensions: string[];
+  generated_at: string | null;
+  /** Generic market research, not community data. */
+  niche_intelligence: { count: number; niches: unknown[]; goods: unknown[]; bads: unknown[] };
+}
+
+/** GET /api/v1/performance */
+export interface PerformanceResponse {
+  records: PerformanceRecord[];
+  count: number;
+}
+
+export interface PerformanceRecord {
+  id: string;
+  slideshow_id: string | null;
+  profile_id: string | null;
+  platform: string;
+  posted_at: string | null;
+  url: string | null;
+  day1_views: number | null;
+  day1_logged_at: string | null;
+  final_views: number | null;
+  final_logged_at: string | null;
+  likes: number | null;
+  shares: number | null;
+  comments: number | null;
+  engagement_rate: number | null;
+  virality_score_predicted: number | null;
+  created_at: string;
+}
+
+/** GET /api/v1/tiktok/insights */
+export interface TikTokInsightsResponse {
+  connected: boolean;
+  needs_reconnect?: boolean;
+  /** Present on a 200 with an account read failure (account exists, read failed). */
+  error?: string;
+  account?: { id: string; display_name: string | null };
+  accounts?: Array<{ id: string; display_name: string | null }>;
+  profile?: {
+    display_name: string;
+    avatar_url: string | null;
+    follower_count: number;
+    likes_count: number;
+    video_count: number;
+  };
+  /** Last 30 days, newest first. */
+  videos?: Array<{
+    id: string;
+    title: string;
+    cover_image_url: string | null;
+    share_url: string | null;
+    view_count: number;
+    like_count: number;
+    comment_count: number;
+    share_count: number;
+    create_time: number;
+  }>;
+}
+
+/** GET /api/v1/collections */
+export interface CollectionsResponse {
+  collections: CollectionSummary[];
+}
+
+export interface CollectionHealth {
+  never_used: number;
+  fresh: number;
+  active: number;
+  heavy: number;
+  danger: number;
+  at_max: number;
+}
+
+export interface CollectionSummary {
+  id: string;
+  name: string;
+  image_count: number;
+  /** Storage path of the earliest image; null when empty. */
+  cover_path: string | null;
+  is_pinned: boolean;
+  created_at: string;
+  /** Per-collection image-usage tiers (image fatigue signal). */
+  health: CollectionHealth;
+}
+
+/** GET /api/v1/collections/[id] */
+export interface CollectionGetResponse {
+  collection: { id: string; name: string; is_pinned: boolean; created_at: string; image_count: number };
+  images: Array<{
+    id: string;
+    slide_count: number;
+    export_count: number;
+    valid: boolean;
+    created_at: string;
+    /** 10-minute signed URL; only present with include_image_urls, null when signing failed. */
+    url?: string | null;
+  }>;
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+/** GET /api/v1/studio/providers */
+export interface StudioProvidersResponse {
+  entitled: boolean;
+  tier: string;
+  provider_ids: string[];
+  aggregators: string[];
+  aggregator_markup: number;
+  providers: Array<{
+    provider: string;
+    label: string;
+    aggregator: boolean;
+    capabilities: string[];
+    /** Boolean only — never key material. */
+    key_set: boolean;
+  }>;
+  models: StudioModelInfo[];
+  /** Display estimate only. */
+  spent_today: { est_usd: number; count: number };
+  cinema_lenses: Array<{ id: string; label: string }>;
+}
+
+export interface StudioModelInfo {
+  id: string;
+  label: string;
+  capability: string;
+  description: string;
+  family: string;
+  recommended: string;
+  featured: boolean;
+  maxResolution: string;
+  durationRange: unknown;
+  hasAudio: boolean;
+  supportsImageInput: boolean;
+  requiresImageInput: boolean;
+  maxReferences: number;
+  supportsVideoInput: boolean;
+  requiresVideoInput: boolean;
+  requiresAudioInput: boolean;
+  resolutions: string[];
+  aspectRatios: string[];
+  serving_providers: string[];
+  /** true when the key owner has a stored key for any serving provider. */
+  usable: boolean;
+  est_cost: unknown;
+  est_cost_effective: unknown;
+  est_via_aggregator: boolean;
+  resolved_unverified: boolean;
+}
+
+/** GET /api/v1/studio/history */
+export interface StudioHistoryResponse {
+  items: Array<{
+    id: string;
+    capability: 'image' | 'video' | 'lipsync' | 'cinema';
+    kind: 'image' | 'video';
+    provider: string;
+    model: string;
+    prompt: string;
+    mime: string | null;
+    /** Provider-hosted result URL — may be expired. */
+    source_url: string | null;
+    created_at: string;
+  }>;
+  note: string;
+}
+
+/** GET /api/v1/studio/saves */
+export interface StudioSavesResponse {
+  saves: Array<{
+    id: string;
+    capability: 'image' | 'video' | 'lipsync' | 'cinema';
+    kind: 'image' | 'video';
+    provider: string;
+    model: string;
+    prompt: string | null;
+    /** Provider-hosted media URL — may be expired. */
+    media_url: string;
+    mime: string | null;
+    created_at: string;
+  }>;
+  note: string;
 }
 
 /** POST /api/v1/studio/generate */

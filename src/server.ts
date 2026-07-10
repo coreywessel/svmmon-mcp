@@ -2,7 +2,7 @@
 /**
  * svmmon-mcp — stdio MCP server entrypoint.
  *
- * Boots a Model Context Protocol server over stdio, registers the 7 Svmmon
+ * Boots a Model Context Protocol server over stdio, registers the Svmmon
  * tools, and dispatches CallTool requests to them through a single shared
  * SvmmonClient (which holds the user's svm_ key and maps API errors).
  *
@@ -15,6 +15,8 @@
  * fill in the implementations.
  */
 
+import { readFileSync } from 'node:fs';
+
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -25,7 +27,7 @@ import {
 import { SvmmonClient, SvmmonApiError, SvmmonConfigError } from './client.js';
 import type { SvmmonTool, ToolResult } from './types.js';
 
-// The 9 tools. These paths are the fixed contract — do not rename.
+// The tools. These paths are the fixed contract — do not rename.
 import getUsage from './tools/getUsage.js';
 import listProfiles from './tools/listProfiles.js';
 import listPresets from './tools/listPresets.js';
@@ -35,6 +37,15 @@ import listSlideshows from './tools/listSlideshows.js';
 import getSlideshow from './tools/getSlideshow.js';
 import generateImage from './tools/generateImage.js';
 import generateVideo from './tools/generateVideo.js';
+import getBrain from './tools/getBrain.js';
+import getCommunityBrain from './tools/getCommunityBrain.js';
+import getPerformance from './tools/getPerformance.js';
+import getTiktokInsights from './tools/getTiktokInsights.js';
+import listCollections from './tools/listCollections.js';
+import getCollection from './tools/getCollection.js';
+import listStudioProviders from './tools/listStudioProviders.js';
+import listStudioHistory from './tools/listStudioHistory.js';
+import listStudioSaves from './tools/listStudioSaves.js';
 
 const TOOLS: SvmmonTool[] = [
   getUsage,
@@ -46,14 +57,40 @@ const TOOLS: SvmmonTool[] = [
   getSlideshow,
   generateImage,
   generateVideo,
+  getBrain,
+  getCommunityBrain,
+  getPerformance,
+  getTiktokInsights,
+  listCollections,
+  getCollection,
+  listStudioProviders,
+  listStudioHistory,
+  listStudioSaves,
 ];
 
 const TOOLS_BY_NAME = new Map<string, SvmmonTool>(TOOLS.map((t) => [t.name, t]));
 
+/**
+ * Self-reported server version, read from package.json so it can never drift
+ * from the published version again (an audit found this hardcoded at 1.0.0
+ * while the package was at 1.1.1). package.json ships in the npm tarball one
+ * level above dist/, so this resolves both from source (src/) and build (dist/).
+ */
+function packageVersion(): string {
+  try {
+    const raw = readFileSync(new URL('../package.json', import.meta.url), 'utf8');
+    const version = (JSON.parse(raw) as { version?: unknown }).version;
+    if (typeof version === 'string' && version) return version;
+  } catch {
+    // fall through to the baked-in fallback
+  }
+  return '1.2.0';
+}
+
 const server = new Server(
   {
     name: 'svmmon-mcp',
-    version: '1.0.0',
+    version: packageVersion(),
   },
   {
     capabilities: { tools: {} },

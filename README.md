@@ -48,13 +48,24 @@ claude mcp add svmmon -e SVMMON_API_KEY=svm_your_key_here -- npx -y svmmon-mcp
 
 | Tool | What it does |
 |---|---|
-| `get_usage` | Tier, slideshows used/cap, reset date, per-account TikTok inbox slots. |
+| `get_usage` | Full usage: tier + plan, slideshows used/cap, AI credits, rerolls, shorts/face-swap caps, account caps, per-account TikTok inbox slots. |
 | `list_profiles` | Your profiles with `id`, `name`, `niche`, `ready`, `missing`, `tiktok_linked`. Only `ready` profiles can generate. |
 | `list_presets` | Valid `preset_id` values for slideshow generation. |
 | `generate_hooks` | Scored hook candidates for a profile. May return fewer than requested if your AI-credit cap is hit. |
 | `generate_slideshow` | Generates ONE slideshow (consumes one from your monthly cap — **not idempotent**). Returns a 24h download link; optionally delivers to TikTok/Telegram. |
+| `generate_image` | Studio image generation on your own provider key (BYOK — **not idempotent**). |
+| `generate_video` | Studio video generation on your own provider key (BYOK — **not idempotent**). |
 | `list_slideshows` | Your recent slideshows. |
 | `get_slideshow` | Fetch a slideshow + a fresh 1h download link by id. |
+| `list_collections` | Your image collections with per-collection image-fatigue health tiers. |
+| `get_collection` | One collection's images, with optional 10-min signed URLs so a vision agent can inspect them. |
+| `get_brain` | Your personal brain for a profile — patterns, voice DNA, next-hook directions (Growth+). |
+| `get_community_brain` | The anonymized community brain — what's working across accounts. |
+| `get_performance` | Post performance — views/likes/shares/comments, day-1 + final. |
+| `get_tiktok_insights` | Live TikTok profile + recent-video stats (Growth+). |
+| `list_studio_providers` | Studio model catalog + which of your provider keys unlock what. |
+| `list_studio_history` | Recent studio generations (metadata; provider source URLs may be expired). |
+| `list_studio_saves` | Your saved studio generations. |
 
 ---
 
